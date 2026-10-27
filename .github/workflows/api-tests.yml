@@ -1,0 +1,20 @@
+name: API challenge tests
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet restore tests/ApiTests.csproj
+      - run: dotnet test tests/ApiTests.csproj --no-restore --configuration Release --logger "trx;LogFileName=api-tests.trx" --results-directory TestResults
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-test-results
+          path: TestResults/
